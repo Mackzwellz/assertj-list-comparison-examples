@@ -7,9 +7,9 @@ This repository explores implementations of the following requirement:
 > Given I have two objects that I need to compare  
 > And these objects have these properties:  
 > - fields may be non-primitive POJOs
-> - fields may be non-primiive lists of POJOs
+> - fields may be non-primitive lists of POJOs
 > - both top level and nested fields of each POJO may have a set of fields that I don't want to use for comparison (ignored fields)
-> - all POJOS may have a common ancestor (BaseDto) that may implement some helpful interfaces / instance methods
+> - all POJOs may have a common ancestor (BaseDto) that may implement some helpful interfaces / instance methods
 >
 > When I compare two objects in assertion  
 > If objects are not equal  

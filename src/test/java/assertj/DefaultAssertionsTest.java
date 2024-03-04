@@ -21,6 +21,7 @@ public class DefaultAssertionsTest extends MyBaseTest {
         //TODO use overridden equals + text
         //TODO use common set of fields for equals and text
         Assertions.assertThat(actualList.get(0))
+                .usingRecursiveComparison()
                 //.overridingErrorMessage() //TODO use me
                 .isEqualTo(expectedList.get(0));
     }
