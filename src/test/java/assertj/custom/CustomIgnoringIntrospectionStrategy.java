@@ -1,5 +1,6 @@
 package assertj.custom;
 
+import io.github.mackzwellz.assertj.custom.FieldComparisonExcludable;
 import io.github.mackzwellz.assertj.dto.BaseDto;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonIntrospectionStrategy;
 import org.assertj.core.internal.Objects;
@@ -12,6 +13,10 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.util.introspection.PropertyOrFieldSupport.COMPARISON;
 
+/**
+ * Custom comparison strategy that allows us to exclude fields that we don't want to compare.
+ * Excluded fields are defined for each object by {@link FieldComparisonExcludable#obtainFieldsToIgnoreInEquals()}
+ */
 public class CustomIgnoringIntrospectionStrategy implements RecursiveComparisonIntrospectionStrategy {
 
     // use ConcurrentHashMap in case this strategy instance is used in a multi-thread context
@@ -31,9 +36,9 @@ public class CustomIgnoringIntrospectionStrategy implements RecursiveComparisonI
 
     public Set<String> getFieldsNamesCustom(Class<?> clazz) {
         Set<String> excluded = new HashSet<>();
-        if (clazz.isAssignableFrom(BaseDto.class)) { //TODO fixme
+        if (clazz.isAssignableFrom(FieldComparisonExcludable.class)) { //TODO fixme
             try {
-                excluded = ((BaseDto) clazz.newInstance()).obtainFieldsToIgnoreInEquals();
+                excluded = ((FieldComparisonExcludable) clazz.newInstance()).obtainFieldsToIgnoreInEquals();
             } catch (InstantiationException | IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
@@ -44,8 +49,8 @@ public class CustomIgnoringIntrospectionStrategy implements RecursiveComparisonI
 
     public Set<String> getFieldsNamesCustomSimple(Object node) {
         Set<String> excluded = new HashSet<>();
-        if (node instanceof BaseDto) {
-            excluded = ((BaseDto) node).obtainFieldsToIgnoreInEquals();
+        if (node instanceof FieldComparisonExcludable) {
+            excluded = ((FieldComparisonExcludable) node).obtainFieldsToIgnoreInEquals();
         }
         Set<String> finalExcluded = excluded;
         return Objects.getFieldsNames(node.getClass()).stream().filter(f -> !finalExcluded.contains(f)).collect(Collectors.toSet());

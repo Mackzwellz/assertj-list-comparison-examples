@@ -1,5 +1,6 @@
 package io.github.mackzwellz.assertj.dto;
 
+import io.github.mackzwellz.assertj.custom.FieldComparisonExcludable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,11 +32,9 @@ import java.util.stream.Collectors;
 //@AllArgsConstructor
 @EqualsAndHashCode
 @ToString
-public class BaseDto {
+public class BaseDto implements FieldComparisonExcludable {
 
-    public Set<String> obtainFieldsToIgnoreInEquals() {
-        return Collections.emptySet();
-    }
+
 
     //recursion-only methods below
     protected static Logger LOG = LoggerFactory.getLogger(BaseDto.class);
