@@ -14,12 +14,12 @@ public class MismatchDataHolder {
     private Object actualValue;
     /**
      * Method used to get expected and actual values
-     * e.g. 'PriceDetails->getStatus' in 'TermsOfSale->PriceDetails->getStatus'
+     * e.g. 'Address->getStreet' in 'User->Address->getStreet'
      */
     private Method getter;
     /**
      * Classes of higher level than the one where the getter is from.
-     * e.g. 'TermsOfSale' in 'TermsOfSale->PriceDetails->getStatus'
+     * e.g. 'User' in 'User->Address->getStreet'
      */
     private List<Class<?>> parentClassesHierarchy;
 
@@ -27,7 +27,7 @@ public class MismatchDataHolder {
      * Position of the item in the list of items, in case might be multiple of them.
      * Should be stored based on declaring/actual class of the getter.
      * If null, should not be displayed by default
-     * e.g. '[1]' and '[0]' in 'TermsOfSale[1]->PriceDetails[0]->getStatus'
+     * e.g. '[1]' and '[0]' in 'User[1]->Address[0]->getStreet'
      */
     private Integer listItemNumber = null;
 

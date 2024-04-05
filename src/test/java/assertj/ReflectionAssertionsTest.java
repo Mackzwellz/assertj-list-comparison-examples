@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 public class ReflectionAssertionsTest extends MyBaseTest {
 
     @Test
-    public void t1() {
+    public void basicReflectionBasedEqualsAndToStringOutput() {
         //TODO allow to assert on lists of top level element
         Assertions.assertThat(actualList.get(0))
                 .overridingErrorMessage(

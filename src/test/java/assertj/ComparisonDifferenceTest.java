@@ -32,6 +32,12 @@ public class ComparisonDifferenceTest extends MyBaseTest {
         }
     }
 
+    /**
+     * this is a prototype of toString for assertion
+     *
+     * @param difference
+     * @return
+     */
     private static String formatDifference(ComparisonDifference difference) {
         String message = "Difference in " + String.join(".", difference.getDecomposedPath());
         if (difference.getActual() != null) {
