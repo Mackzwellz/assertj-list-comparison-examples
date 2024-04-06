@@ -13,18 +13,6 @@ package assertj.custom;
  * Copyright 2012-2023 the original author or authors.
  */
 
-import static org.assertj.core.error.ShouldBeEqualByComparingFieldByFieldRecursively.shouldBeEqualByComparingFieldByFieldRecursively;
-import static org.assertj.core.error.ShouldNotBeEqualComparingFieldByFieldRecursively.shouldNotBeEqualComparingFieldByFieldRecursively;
-
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.OptionalDouble;
-import java.util.OptionalInt;
-import java.util.OptionalLong;
-import java.util.function.BiPredicate;
-
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.recursive.comparison.ComparisonDifference;
 import org.assertj.core.api.recursive.comparison.DefaultRecursiveComparisonIntrospectionStrategy;
@@ -36,7 +24,20 @@ import org.assertj.core.internal.TypeComparators;
 import org.assertj.core.util.CheckReturnValue;
 import org.assertj.core.util.introspection.IntrospectionError;
 
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
+import java.util.function.BiPredicate;
+
+import static org.assertj.core.error.ShouldBeEqualByComparingFieldByFieldRecursively.shouldBeEqualByComparingFieldByFieldRecursively;
+import static org.assertj.core.error.ShouldNotBeEqualComparingFieldByFieldRecursively.shouldNotBeEqualComparingFieldByFieldRecursively;
+
 public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> extends AbstractAssert<SELF, Object> {
+    // this is a copy of RecursiveComparisonAssert
     //public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> extends RecursiveComparisonAssert<SELF> {
 
     private final RecursiveComparisonConfiguration recursiveComparisonConfiguration;
@@ -75,6 +76,7 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
         // at this point both actual and expected are not null, we can compare them recursively!
         List<ComparisonDifference> differences = determineDifferencesWith(expected);
         if (!differences.isEmpty()) {
+            // ASSERTJ DEVS HOW DO I EXTEND RECURSIVE COMPARISON ASSERT (though I probably shouldn't...)
             throw objects.getFailures().failure(info, shouldBeEqualByComparingFieldByFieldRecursively(actual,
                     expected,
                     differences,
@@ -83,6 +85,32 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
         }
         return myself;
     }
+
+    // this method is meant to be overridden and made public in subclasses that want to expose it
+    // this would avoid duplicating this code in all subclasses
+    public CustomRecursiveAssert<?> usingRecursiveComparison1(RecursiveComparisonConfiguration recursiveComparisonConfiguration) {
+        return new CustomRecursiveAssert<>(actual, recursiveComparisonConfiguration);
+        //.withAssertionState(myself);
+    }
+
+    // this method is meant to be overridden and made public in subclasses that want to expose it
+    // this would avoid duplicating this code in all subclasses
+    public CustomRecursiveAssert<?> usingRecursiveComparison1() {
+        return usingRecursiveComparison1(new RecursiveComparisonConfiguration());
+    }
+
+    // this method is meant to be overridden and made public in subclasses that want to expose it
+    // this would avoid duplicating this code in all subclasses
+//    public CustomRecursiveAssert usingRecursiveAssertion1(RecursiveAssertionConfiguration recursiveAssertionConfiguration) {
+//        return new CustomRecursiveAssert(actual, recursiveAssertionConfiguration);
+//    }
+//
+//    // this method is meant to be overridden and made public in subclasses that want to expose it
+//    // this would avoid duplicating this code in all subclasses
+//    public CustomRecursiveAssert usingRecursiveAssertion1() {
+//        return new CustomRecursiveAssert(actual, RecursiveAssertionConfiguration.builder().build());
+//    }
+
 
     /**
      * Asserts that the object under test (actual) is equal to the given object when compared field by field recursively (including
@@ -176,9 +204,7 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
      *                     .isEqualTo(sherlock2);</code></pre>
      *
      * @param expected the object to compare {@code actual} to.
-     *
      * @return {@code this} assertion object.
-     *
      * @throws AssertionError     if the actual object is {@code null}.
      * @throws AssertionError     if the actual and the given objects are not deeply equal property/field by property/field.
      * @throws IntrospectionError if one property/field to compare can not be found.
@@ -199,11 +225,17 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
         // at this point both actual and expected are not null, we can compare them recursively!
         List<ComparisonDifference> differences = determineDifferencesWith(expected);
         if (!differences.isEmpty()) {
-            throw objects.getFailures().failure(info, shouldBeEqualByComparingFieldByFieldRecursively(actual,
-                    expected,
-                    differences,
-                    recursiveComparisonConfiguration,
-                    info.representation()));
+            throw objects.getFailures().failure(info,
+                    // ASSERTJ DEVS PLEASE ALLOW TO OVERRIDE ERROR MESSAGE FACTORY
+                    // FOR FINER ASSERTION MESSAGE CONTROL
+                    // SO I DON'T HAVE TO:
+                    // - MAKE A SUPPLIER THAT DOES determineDifferencesWith
+                    // - MAKE A CustomAssertWrapper
+                    shouldBeEqualByComparingFieldByFieldRecursively(actual,
+                            expected,
+                            differences,
+                            recursiveComparisonConfiguration,
+                            info.representation()));
         }
         return myself;
     }
@@ -239,9 +271,7 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
      *                  .isNotEqualTo(youngFrodo);</code></pre>
      *
      * @param other the object to compare {@code actual} to.
-     *
      * @return {@code this} assertions object
-     *
      * @throws AssertionError if the actual object and the given objects are both {@code null}.
      * @throws AssertionError if the actual and the given objects are equals property/field by property/field recursively.
      * @see #isEqualTo(Object)
@@ -309,9 +339,7 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
      *                     .isIn(sherlock2, moriarty);</code></pre>
      *
      * @param values the given array to search the actual value in.
-     *
      * @return {@code this} assertion object.
-     *
      * @throws NullPointerException if the given array is {@code null}.
      * @throws AssertionError       if the actual value is not present in the given array.
      */
@@ -363,9 +391,7 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
      *                     .isIn(Arrays.asList(sherlock2, moriarty));</code></pre>
      *
      * @param values the given iterable to search the actual value in.
-     *
      * @return {@code this} assertion object.
-     *
      * @throws NullPointerException if the given iterable is {@code null}.
      * @throws AssertionError       if the actual value is not present in the given iterable.
      */
@@ -418,9 +444,7 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
      *                     .isNotIn(watson, moriarty);</code></pre>
      *
      * @param values the given array to search the actual value in.
-     *
      * @return {@code this} assertion object.
-     *
      * @throws NullPointerException if the given array is {@code null}.
      * @throws AssertionError       if the actual value is present in the given array.
      */
@@ -473,9 +497,7 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
      *                     .isNotIn(Arrays.asList(watson, moriarty));</code></pre>
      *
      * @param values the given iterable to search the actual value in.
-     *
      * @return {@code this} assertion object.
-     *
      * @throws NullPointerException if the given iterable is {@code null}.
      * @throws AssertionError       if the actual value is present in the given iterable.
      */
@@ -542,7 +564,6 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
      *                     .isEqualTo(moriarty);</code></pre>
      *
      * @param fieldNamesToCompare the fields of the object under test to compare in the comparison.
-     *
      * @return this {@link org.assertj.core.api.RecursiveComparisonAssert} to chain other methods.
      */
     public SELF comparingOnlyFields(String... fieldNamesToCompare) {
@@ -604,7 +625,6 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
      * this is done to catch typos.
      *
      * @param typesToCompare the types to compare in the recursive comparison.
-     *
      * @return this {@link org.assertj.core.api.RecursiveComparisonAssert} to chain other methods.
      */
     public SELF comparingOnlyFieldsOfTypes(Class<?>... typesToCompare) {
@@ -794,7 +814,6 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
      *                     .isEqualTo(noName);</code></pre>
      *
      * @param fieldNamesToIgnore the field names of the object under test to ignore in the comparison.
-     *
      * @return this {@link org.assertj.core.api.RecursiveComparisonAssert} to chain other methods.
      */
     @CheckReturnValue
@@ -844,7 +863,6 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
      *                     .isEqualTo(noName);</code></pre>
      *
      * @param regexes regexes used to ignore fields in the comparison.
-     *
      * @return this {@link org.assertj.core.api.RecursiveComparisonAssert} to chain other methods.
      */
     @CheckReturnValue
@@ -894,7 +912,6 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
      *                     .isEqualTo(sherlock2);</code></pre>
      *
      * @param typesToIgnore the types we want to ignore in the object under test fields.
-     *
      * @return this {@link org.assertj.core.api.RecursiveComparisonAssert} to chain other methods.
      */
     public SELF ignoringFieldsOfTypes(Class<?>... typesToIgnore) {
@@ -1011,7 +1028,6 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
      *                     .isEqualTo(sherlock2);</code></pre>
      *
      * @return this {@link org.assertj.core.api.RecursiveComparisonAssert} to chain other methods.
-     *
      * @since 3.17.0
      */
     public SELF usingOverriddenEquals() {
@@ -1076,7 +1092,6 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
      *                     .isEqualTo(sherlock2);</code></pre>
      *
      * @param fields the fields we want to force a recursive comparison on.
-     *
      * @return this {@link org.assertj.core.api.RecursiveComparisonAssert} to chain other methods.
      */
     @CheckReturnValue
@@ -1140,7 +1155,6 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
      *                     .isEqualTo(sherlock2);</code></pre>
      *
      * @param types the types we want to force a recursive comparison on.
-     *
      * @return this {@link org.assertj.core.api.RecursiveComparisonAssert} to chain other methods.
      */
     @CheckReturnValue
@@ -1203,7 +1217,6 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
      *                     .isEqualTo(sherlock2);</code></pre>
      *
      * @param regexes regexes used to specify the fields we want to force a recursive comparison on.
-     *
      * @return this {@link org.assertj.core.api.RecursiveComparisonAssert} to chain other methods.
      */
     @CheckReturnValue
@@ -1287,7 +1300,6 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
      *                      .isEqualTo(sherlock2);</code></pre>
      *
      * @param fieldsToIgnoreCollectionOrder the fields of the object under test to ignore collection order in the comparison.
-     *
      * @return this {@link org.assertj.core.api.RecursiveComparisonAssert} to chain other methods.
      */
     @CheckReturnValue
@@ -1336,7 +1348,6 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
      *                      .isEqualTo(sherlock2);</code></pre>
      *
      * @param regexes regexes used to find the object under test fields to ignore collection order in the comparison.
-     *
      * @return this {@link org.assertj.core.api.RecursiveComparisonAssert} to chain other methods.
      */
     @CheckReturnValue
@@ -1444,9 +1455,7 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
      *
      * @param equals         the {@link BiPredicate} to use to compare the given fields
      * @param fieldLocations the location from the root object of the fields the BiPredicate should be used for
-     *
      * @return this {@link org.assertj.core.api.RecursiveComparisonAssert} to chain other methods.
-     *
      * @throws NullPointerException if the given BiPredicate is null.
      */
     @CheckReturnValue
@@ -1496,9 +1505,7 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
      *
      * @param equals  the {@link BiPredicate} to use to compare the fields matching the given regexes
      * @param regexes the regexes from the root object of the fields location the BiPredicate should be used for
-     *
      * @return this {@link org.assertj.core.api.RecursiveComparisonAssert} to chain other methods.
-     *
      * @throws NullPointerException if the given BiPredicate is null.
      * @since 3.24.0
      */
@@ -1544,9 +1551,7 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
      *
      * @param comparator     the {@link java.util.Comparator Comparator} to use to compare the given fields
      * @param fieldLocations the location from the root object of the fields the comparator should be used for
-     *
      * @return this {@link org.assertj.core.api.RecursiveComparisonAssert} to chain other methods.
-     *
      * @throws NullPointerException if the given comparator is null.
      */
     @CheckReturnValue
@@ -1589,9 +1594,7 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
      * @param <T>        the class type to register a comparator for
      * @param comparator the {@link java.util.Comparator Comparator} to use to compare the given fields
      * @param type       the type to be compared with the given comparator.
-     *
      * @return this {@link org.assertj.core.api.RecursiveComparisonAssert} to chain other methods.
-     *
      * @throws NullPointerException if the given comparator is null.
      */
     @CheckReturnValue
@@ -1634,9 +1637,7 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
      * @param <T>    the class type to register a BiPredicate for
      * @param equals the {@link BiPredicate} to use to compare the given fields
      * @param type   the type to be compared with the given comparator.
-     *
      * @return this {@link org.assertj.core.api.RecursiveComparisonAssert} to chain other methods.
-     *
      * @throws NullPointerException if the given BiPredicate is null.
      */
     @CheckReturnValue
@@ -1699,7 +1700,6 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
      *
      * @param message        the error message that will be thrown when comparison error occurred.
      * @param fieldLocations the fields the error message should be used for.
-     *
      * @return this {@link org.assertj.core.api.RecursiveComparisonAssert} to chain other methods.
      */
     @CheckReturnValue
@@ -1758,7 +1758,6 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
      *
      * @param message the error message that will be thrown when comparison error occurred.
      * @param type    the type the error message should be used for.
-     *
      * @return this {@link org.assertj.core.api.RecursiveComparisonAssert} to chain other methods.
      */
     @CheckReturnValue
@@ -1777,7 +1776,6 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
      * Default to {@link DefaultRecursiveComparisonIntrospectionStrategy} that introspects all fields (including inherited ones).
      *
      * @param introspectionStrategy the {@link RecursiveComparisonIntrospectionStrategy} to use
-     *
      * @return this {@link org.assertj.core.api.RecursiveComparisonAssert} to chain other methods.
      */
     @CheckReturnValue
@@ -1830,7 +1828,7 @@ public class CustomRecursiveAssert<SELF extends CustomRecursiveAssert<SELF>> ext
         return myself;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     private void registerComparatorForType(Entry<Class<?>, Comparator<?>> entry) {
         withComparatorForType((Comparator) entry.getValue(), entry.getKey());
     }
