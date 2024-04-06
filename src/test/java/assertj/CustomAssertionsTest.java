@@ -13,6 +13,39 @@ public class CustomAssertionsTest extends MyBaseTest {
     public void thisIsItTest() {
         //a lot of hoops and dupes for very simple things, but it works.
         CustomAssertWrapper.verifyEquals(actualList, expectedList);
+
+        //Result looks like:
+
+        //java.lang.AssertionError:
+        //Equals mismatch for <User> in <ArrayList>:
+        //Found 5 differences:
+        //
+        //field/property '[0].addresses' differ:
+        //- actual value  : [Address(country=UK, city=London, street=Baker st., building=221B),
+        //    Address(country=UK, city=London, street=Baker st., building=221C),
+        //    Address(country=UK, city=London, street=Baker st., building=221D)]
+        //- expected value: null
+        //
+        //field/property '[1].addresses' differ:
+        //- actual value  : null
+        //- expected value: [Address(country=UK, city=Manchester, street=Baker st., building=221B),
+        //    Address(country=UK, city=Manchester, street=Baker st., building=221C)]
+        //
+        //field/property '[2].addresses' differ:
+        //- actual value  : [Address(country=UK, city=London, street=Baker st., building=221B),
+        //    Address(country=UK, city=London, street=Baker st., building=221C),
+        //    Address(country=UK, city=London, street=Baker st., building=221D)]
+        //- expected value: [Address(country=UK, city=Manchester, street=Baker st., building=221B),
+        //    Address(country=UK, city=Manchester, street=Baker st., building=221C)]
+        //actual and expected values are collections of different size, actual size=3 when expected size=2
+        //
+        //field/property '[3].addresses[0].city' differ:
+        //- actual value  : "London"
+        //- expected value: "Manchester"
+        //
+        //field/property '[3].addresses[1].city' differ:
+        //- actual value  : "London"
+        //- expected value: "Manchester"
     }
 
     @Test
