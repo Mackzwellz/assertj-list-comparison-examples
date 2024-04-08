@@ -27,7 +27,7 @@ public class CustomIgnoringIntrospectionStrategy implements RecursiveComparisonI
         if (node == null) return new HashSet<>();
         // Caches the names after getting them for efficiency, a node can be introspected multiple times for example if
         // it belongs to an unordered collection as all actual elements are compared to all expected elements.
-        if (node instanceof BaseDto) { //TODO fixme
+        if (node instanceof FieldComparisonExcludable) {
             return getFieldsNamesCustomSimple(node);
             //return fieldNamesPerClass.computeIfAbsent(node.getClass(), this::getFieldsNamesCustom);
         }

@@ -52,7 +52,7 @@ public class BaseDto implements FieldComparisonExcludable {
         if (!result) {
             LOG.error("Objects are not equal to each other!");
             LOG.debug("{} verification: Expected --> {}", getter.getName(), a);
-            LOG.debug("{} verification: Actual --> {}", getter.getName(), a);
+            LOG.debug("{} verification: Actual ----> {}", getter.getName(), b);
         }
         return result;
     }
@@ -79,7 +79,7 @@ public class BaseDto implements FieldComparisonExcludable {
         if (!result) {
             LOG.error("Objects are not equal to each other!");
             LOG.debug("{} lists verification: Expected --> {}", getter.getName(), a);
-            LOG.debug("{} lists verification: Actual --> {}", getter.getName(), b);
+            LOG.debug("{} lists verification: Actual ----> {}", getter.getName(), b);
         }
         return result;
     }
