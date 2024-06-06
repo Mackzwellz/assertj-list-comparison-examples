@@ -1,5 +1,6 @@
 package io.github.mackzwellz.assertj.dto;
 
+import io.github.mackzwellz.assertj.util.ComparatorUtil;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -7,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Set;
 
@@ -34,22 +34,14 @@ public class User extends IdentifiableEntity {
     }
 
     @Override
-    public List<Method> obtainGettersForEquals() {
-        List<String> excludedGetters = List.of(
-                "name"
-        );
-        return obtainAllGettersExceptFor(excludedGetters);
-    }
-
-    @Override
     public boolean equals(Object o) {
-        if (this == o)
+        if (this == o) {
             return true;
-        if (!(o instanceof User))
+        }
+        if (!(o instanceof User)) {
             return false;
+        }
         User that = (User) o;
-
-        //LOG.info("Verifying fields for {}/{}", );
-        return equalsUsingGetters(this, that, obtainGettersForEquals());
+        return ComparatorUtil.equalsUsingGetters(this, that, obtainGettersForEquals());
     }
 }

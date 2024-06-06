@@ -1,6 +1,7 @@
 package io.github.mackzwellz.assertj.dto;
 
 import io.github.mackzwellz.assertj.custom.FieldComparisonExcludable;
+import io.github.mackzwellz.assertj.util.ReflectionUtil;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,20 +12,15 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Getter
 @Setter
@@ -34,135 +30,8 @@ import java.util.stream.Collectors;
 @ToString
 public class BaseDto implements FieldComparisonExcludable {
 
-
-
     //recursion-only methods below
     protected static Logger LOG = LoggerFactory.getLogger(BaseDto.class);
-
-    public final boolean equals(Object a, Object b, Method getter) {
-        LOG.info("{} verification:", getter.getName());
-        boolean result;
-        if (a instanceof List) {
-            return equals((List) a, (List) b, getter);
-        } else {
-            a = invokeMethod(a, getter);
-            b = invokeMethod(b, getter);
-            result = Objects.equals(a, b);
-        }
-        if (!result) {
-            LOG.error("Objects are not equal to each other!");
-            LOG.debug("{} verification: Expected --> {}", getter.getName(), a);
-            LOG.debug("{} verification: Actual ----> {}", getter.getName(), b);
-        }
-        return result;
-    }
-
-    public final boolean equals(Object a, Object b, String field) {
-        LOG.info("{} verification: Expected --> {} vs actual --> {}", field, a, b);
-        boolean result;
-        if (a instanceof List) {
-            return equals((List) a, (List) b);
-        } else {
-            result = Objects.equals(a, b);
-        }
-        if (!result) {
-            LOG.error("Objects are not equal to each other!");
-        }
-        return result;
-    }
-
-    private <T extends Comparable<? super T>> boolean equals(List<T> a, List<T> b, Method getter) {
-        LOG.info("{} lists verification:", getter.getName());
-        a = (List<T>) invokeMethod(a, getter);
-        b = (List<T>) invokeMethod(b, getter);
-        boolean result = equals(a, b);
-        if (!result) {
-            LOG.error("Objects are not equal to each other!");
-            LOG.debug("{} lists verification: Expected --> {}", getter.getName(), a);
-            LOG.debug("{} lists verification: Actual ----> {}", getter.getName(), b);
-        }
-        return result;
-    }
-
-    /**
-     * Comparing two Lists of DTO's
-     *
-     * @param a first list of DTO to be compared
-     * @param b second list of DTO to be compared
-     *
-     * @return result of verification
-     */
-    private <T extends Comparable<? super T>> boolean equals(List<T> a, List<T> b) {
-        LOG.info("Comparing two Lists of DTO's");
-        if (a == null && b == null) {
-            return true;
-        }
-        if (a == null || b == null) {
-            return false;
-        }
-        if (a.size() != b.size()) {
-            LOG.debug("List sizes are not equal");
-            return false;
-        }
-
-        Collections.sort(a);
-        Collections.sort(b);
-        LOG.info("First List {}", a);
-        LOG.info("Second List {}", b);
-
-        for (int i = 0; i < a.size(); i++) {
-            if (!a.get(i).equals(b.get(i))) {
-                LOG.info("{} element from first list:\n '{}' \nis not equal to element from the second list:\n '{}'",
-                        i, a.get(i), b.get(i));
-                return false;
-            }
-        }
-        return true;
-    }
-//
-//    /**
-//     * Method to get a deep copy of DTO
-//     * DTO should contain constructor with DTO as an argument
-//     * which initializes all properties of the class by mapping from passed DTO
-//     * and this method should 'return new ClassName(this);' - new instance with existing properties
-//     *
-//     * @return Deep copy of object
-//     */
-//    public abstract T getCopy();
-
-    public List<Method> obtainGettersForEquals() {
-        return Collections.emptyList();
-    }
-
-    public List<Method> obtainAllGetters() {
-        return Arrays.stream(this.getClass().getMethods()) // getDeclaredMethods() ?
-                .filter(method -> {
-                    String methodName = method.getName();
-                    return (methodName.startsWith("get") || method.getName().startsWith("is"))
-                           && !
-                                   (method.getName().startsWith("getCopy") || method.getName().equals("getClass"));
-                })
-                .collect(Collectors.toList());
-    }
-
-    public List<Method> obtainAllGettersExceptFor(List<String> getterNames) {
-        return obtainAllGetters()
-                .stream()
-                .filter(method -> !getterNames.contains(method.getName()))
-                .collect(Collectors.toList());
-    }
-
-    //TODO use BaseDto<T> instead of object?
-    public boolean equalsUsingGetters(Object expected, Object actual, List<Method> getters) {
-        boolean result;
-        for (Method getter : getters) {
-            result = equals(expected, actual, getter);
-            if (!result) {
-                return false;
-            }
-        }
-        return true;
-    }
 
     //public static <T extends BaseDto<? super T>> String customEqualsToString(T expected, T actual, String customMessage) {
     public static <T extends BaseDto> String customEqualsToString(T expected, T actual, String customMessage) {
@@ -186,8 +55,8 @@ public class BaseDto implements FieldComparisonExcludable {
     }
 
     private static void putObjectDiffToMap(Map<Method, Pair<Object, Object>> map, Object expected, Object actual, Method getter) {
-        Object expectedValue = invokeMethod(expected, getter);
-        Object actualValue = invokeMethod(actual, getter);
+        Object expectedValue = ReflectionUtil.invokeMethod(expected, getter);
+        Object actualValue = ReflectionUtil.invokeMethod(actual, getter);
         LOG.debug("Equals for {}", getter.getDeclaringClass().getSimpleName());
         if (!Objects.equals(actualValue, expectedValue)) {
             Type getterReturnType = obtainGetterReturnType(getter);
@@ -228,14 +97,6 @@ public class BaseDto implements FieldComparisonExcludable {
         }
     }
 
-//    private static BaseDto<?> obtainInstance(Type getterReturnType) {
-//        try {
-//            return ((Class<? extends BaseDto<?>>) getterReturnType).getDeclaredConstructor().newInstance();
-//        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-
     private static Type obtainGetterReturnType(Method getter) {
         Class<?> returnClass = getter.getReturnType();
         Type[] argTypes;
@@ -254,11 +115,4 @@ public class BaseDto implements FieldComparisonExcludable {
         return String.class;
     }
 
-    private static Object invokeMethod(Object object, Method method) {
-        try {
-            return method.invoke(object);
-        } catch (IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }
