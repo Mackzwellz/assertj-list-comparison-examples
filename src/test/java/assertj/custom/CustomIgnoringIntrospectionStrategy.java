@@ -1,7 +1,6 @@
 package assertj.custom;
 
 import io.github.mackzwellz.assertj.custom.FieldComparisonExcludable;
-import io.github.mackzwellz.assertj.dto.BaseDto;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonIntrospectionStrategy;
 import org.assertj.core.internal.Objects;
 
@@ -43,7 +42,8 @@ public class CustomIgnoringIntrospectionStrategy implements RecursiveComparisonI
                 throw new RuntimeException(e);
             }
         }
-        Set<String> finalExcluded = excluded;
+        Set<String> finalExcluded = new HashSet<>(excluded);
+        finalExcluded.add("LOG");
         return Objects.getFieldsNames(clazz).stream().filter(f -> !finalExcluded.contains(f)).collect(Collectors.toSet());
     }
 

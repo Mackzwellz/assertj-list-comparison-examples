@@ -2,7 +2,9 @@ package io.github.mackzwellz.assertj.custom;
 
 import io.github.mackzwellz.assertj.util.ReflectionUtil;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -47,8 +49,16 @@ public interface FieldComparisonExcludable {
      * @return
      */
     default List<Method> obtainGettersForEquals() {
-        List<String> excludedGetters = new ArrayList<>(this.obtainFieldsToIgnoreInEquals());
-        return ReflectionUtil.obtainAllGettersExceptFor(this, excludedGetters);
+        List<String> excludedFieldNames = new ArrayList<>(this.obtainFieldsToIgnoreInEquals());
+        return ReflectionUtil.obtainAllGettersExceptFor(this, excludedFieldNames);
+    }
+
+    default <T extends FieldComparisonExcludable> T obtainInstance(Type getterReturnType) {
+        try {
+            return ((Class<T>) getterReturnType).getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
