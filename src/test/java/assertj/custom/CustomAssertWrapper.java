@@ -1,5 +1,6 @@
 package assertj.custom;
 
+import io.github.mackzwellz.assertj.custom.FieldComparisonExcludable;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.recursive.comparison.ComparisonDifference;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
@@ -11,10 +12,22 @@ import org.assertj.core.presentation.StandardRepresentation;
 import java.util.List;
 import java.util.function.Supplier;
 
+/**
+ * Custom wrapper for AssertJ's assertions to allow for:
+ * - generating human-readable object diffs in assertions
+ * - use overridden Object#equals in comparisons both inside and outside of assertion
+ * <p>
+ * Actual and expected objects must implement {@link FieldComparisonExcludable} or be collections of such objects
+ */
 public class CustomAssertWrapper {
 
+    private static final RecursiveComparisonConfiguration cfg = new RecursiveComparisonConfiguration();
 
-    private Supplier<String> customErrorMessageSupplier(Object actual, Object expected, RecursiveComparisonConfiguration cfg) {
+    static {
+        cfg.setIntrospectionStrategy(new CustomIgnoringIntrospectionStrategy());
+    }
+
+    private static Supplier<String> customErrorMessageSupplier(Object actual, Object expected, RecursiveComparisonConfiguration cfg) {
         return () -> {
             Representation representation = new StandardRepresentation(); //TODO custom representation?
             RecursiveComparisonDifferenceCalculator diffCalc = new RecursiveComparisonDifferenceCalculator();
@@ -29,22 +42,14 @@ public class CustomAssertWrapper {
         };
     }
 
-    //this is enough
-    private void verifyEqualsInternal(Object actual, Object expected) {
-        RecursiveComparisonConfiguration cfg = new RecursiveComparisonConfiguration();
-        cfg.setIntrospectionStrategy(new CustomIgnoringIntrospectionStrategy());
+    private static void verifyEqualsInternal(Object actual, Object expected) {
         Assertions.assertThat(actual)
                 .usingRecursiveComparison(cfg)
                 .overridingErrorMessage(customErrorMessageSupplier(actual, expected, cfg))
                 .isEqualTo(expected);
     }
 
-    //TODO but what if we want to use custom equals instead of introspection strategy
-    // AND get pretty difference-per-field output?
-    // THEN we need custom diffcalc AND representations most likely
-    private void verifyEqualsInternalWithOverride(Object actual, Object expected) {
-        RecursiveComparisonConfiguration cfg = new RecursiveComparisonConfiguration();
-        cfg.setIntrospectionStrategy(new CustomIgnoringIntrospectionStrategy());
+    private static void verifyEqualsInternalWithOverride(Object actual, Object expected) {
         Assertions.assertThat(actual)
                 .usingRecursiveComparison(cfg)
                 .usingOverriddenEquals()
@@ -53,6 +58,6 @@ public class CustomAssertWrapper {
     }
 
     public static void verifyEquals(Object actual, Object expected) {
-        new CustomAssertWrapper().verifyEqualsInternalWithOverride(actual, expected);
+        verifyEqualsInternalWithOverride(actual, expected);
     }
 }

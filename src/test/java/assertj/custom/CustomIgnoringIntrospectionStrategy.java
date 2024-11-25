@@ -27,15 +27,15 @@ public class CustomIgnoringIntrospectionStrategy implements RecursiveComparisonI
         // Caches the names after getting them for efficiency, a node can be introspected multiple times for example if
         // it belongs to an unordered collection as all actual elements are compared to all expected elements.
         if (node instanceof FieldComparisonExcludable) {
-            return getFieldsNamesCustomSimple(node);
-            //return fieldNamesPerClass.computeIfAbsent(node.getClass(), this::getFieldsNamesCustom);
+            //return getFieldsNamesCustom(node);
+            return fieldNamesPerClass.computeIfAbsent(node.getClass(), this::getFieldsNamesCustom);
         }
         return fieldNamesPerClass.computeIfAbsent(node.getClass(), Objects::getFieldsNames);
     }
 
     public Set<String> getFieldsNamesCustom(Class<?> clazz) {
         Set<String> excluded = new HashSet<>();
-        if (clazz.isAssignableFrom(FieldComparisonExcludable.class)) { //TODO fixme
+        if (FieldComparisonExcludable.class.isAssignableFrom(clazz)) {
             try {
                 excluded = ((FieldComparisonExcludable) clazz.newInstance()).obtainFieldsToIgnoreInEquals();
             } catch (InstantiationException | IllegalAccessException e) {
@@ -47,7 +47,7 @@ public class CustomIgnoringIntrospectionStrategy implements RecursiveComparisonI
         return Objects.getFieldsNames(clazz).stream().filter(f -> !finalExcluded.contains(f)).collect(Collectors.toSet());
     }
 
-    public Set<String> getFieldsNamesCustomSimple(Object node) {
+    public Set<String> getFieldsNamesCustom(Object node) {
         Set<String> excluded = new HashSet<>();
         if (node instanceof FieldComparisonExcludable) {
             excluded = ((FieldComparisonExcludable) node).obtainFieldsToIgnoreInEquals();

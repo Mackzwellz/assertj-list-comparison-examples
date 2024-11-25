@@ -1,21 +1,17 @@
 package io.github.mackzwellz.assertj.dto;
 
 import io.github.mackzwellz.assertj.util.ComparatorUtil;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
+//@EqualsAndHashCode(callSuper = true)
 @ToString
 public class User extends IdentifiableEntity {
 
@@ -43,5 +39,14 @@ public class User extends IdentifiableEntity {
         }
         User that = (User) o;
         return ComparatorUtil.equalsUsingGetters(this, that, obtainGettersForEquals());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        //result = 31 * result + Objects.hashCode(getName());
+        result = 31 * result + Objects.hashCode(getEmail());
+        result = 31 * result + Objects.hashCode(getAddresses());
+        return result;
     }
 }
