@@ -19,6 +19,7 @@ import static org.assertj.core.util.introspection.PropertyOrFieldSupport.COMPARI
 public class CustomIgnoringIntrospectionStrategy implements RecursiveComparisonIntrospectionStrategy {
 
     // use ConcurrentHashMap in case this strategy instance is used in a multi-thread context
+    // TODO what if this needs to be recomputed?
     private final Map<Class<?>, Set<String>> fieldNamesPerClass = new ConcurrentHashMap<>();
 
     @Override

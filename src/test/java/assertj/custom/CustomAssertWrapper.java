@@ -21,6 +21,7 @@ import java.util.function.Supplier;
  */
 public class CustomAssertWrapper {
 
+    // TODO resolve issues with caching results
     private static final RecursiveComparisonConfiguration cfg = new RecursiveComparisonConfiguration();
 
     static {
@@ -50,10 +51,17 @@ public class CustomAssertWrapper {
     }
 
     private static void verifyEqualsInternalWithOverride(Object actual, Object expected) {
+        RecursiveComparisonConfiguration compCfg = new RecursiveComparisonConfiguration();
+        compCfg.setIntrospectionStrategy(new CustomIgnoringIntrospectionStrategy());
+
+        // need separate message config if `usingOverriddenEquals()` produces false positives, e.g. due to improperly sorted lists
+        RecursiveComparisonConfiguration messageCfg = new RecursiveComparisonConfiguration();
+        messageCfg.setIntrospectionStrategy(new CustomIgnoringIntrospectionStrategy());
+
         Assertions.assertThat(actual)
-                .usingRecursiveComparison(cfg)
+                .usingRecursiveComparison(compCfg)
                 .usingOverriddenEquals()
-                .overridingErrorMessage(customErrorMessageSupplier(actual, expected, cfg))
+                .overridingErrorMessage(customErrorMessageSupplier(actual, expected, messageCfg))
                 .isEqualTo(expected);
     }
 
