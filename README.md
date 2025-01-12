@@ -63,3 +63,16 @@ But we will use AssertJ since it is almost perfect for our use case ~~and requir
 
 [Check it out](src/test/java/assertj/CustomAssertionsTest.java). 
 We still had to override the assertion message, but at least the object comparison could be implemented in a nice and extensible way.
+
+- [Relevant AssertJ Github forum discussion here](https://github.com/orgs/assertj/discussions/3352)
+
+## Lessons learned
+
+- If not obvious enough, `equals()` and `hashCode()` should only perform these operations and nothing else. 
+  - In original project from which this experiment started, `BaseDto` contained a common `equals()` method 
+  that did recursive `Collection.sort()` for all collection fields. 
+  - Achieving clean parity for this is a nightmare, 
+  so please make sure to keep any field mutations outside of object equality/comparison methods, thanks.
+- Current (as of ~v3.26) AssertJ assertion APIs don't handle/scale for this approach well. 
+  - See [Discussion about the shortcomings of current approach](https://github.com/orgs/assertj/discussions/3418)
+  - Then again, it is probably not the best approach in general.

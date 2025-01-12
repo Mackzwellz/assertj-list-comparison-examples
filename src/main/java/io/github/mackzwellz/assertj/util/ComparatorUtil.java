@@ -37,10 +37,9 @@ public class ComparatorUtil {
      *
      * @param a first list of DTO to be compared
      * @param b second list of DTO to be compared
-     *
      * @return result of verification
      */
-    public static <T extends Comparable<? super T>> boolean listEquals(List<T> a, List<T> b) {
+    public static <T> boolean listEquals(List<T> a, List<T> b) {
         LOG.info("Comparing two Lists of DTO's");
         if (a == null && b == null) {
             return true;
@@ -54,8 +53,8 @@ public class ComparatorUtil {
         }
 
         //TODO should likely get rid of this and sort fields after filling the DTO with data.
-        Collections.sort(a);
-        Collections.sort(b);
+        //Collections.sort(a);
+        //Collections.sort(b);
         LOG.info("First List {}", a);
         LOG.info("Second List {}", b);
 
@@ -74,7 +73,6 @@ public class ComparatorUtil {
      *
      * @param expected
      * @param actual
-     *
      * @return true if maps are equal, throws SoftAssertionError otherwise
      */
     public static <K, V> boolean verifyMaps(Map<K, V> expected, Map<K, V> actual) {

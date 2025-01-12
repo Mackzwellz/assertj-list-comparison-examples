@@ -17,13 +17,21 @@ public class ReflectionUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReflectionUtil.class);
 
+    public static Method obtainGetterByName(Class<?> clz, String methodName) {
+        try {
+            return clz.getDeclaredMethod(methodName, (Class<?>) null);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static <T> List<Method> obtainAllGetters(T object) {
         return Arrays.stream(object.getClass().getMethods()) // getDeclaredMethods() ?
                 .filter(method -> {
                     String methodName = method.getName();
                     return (methodName.startsWith("get") || method.getName().startsWith("is"))
-                           && !
-                                   (method.getName().startsWith("getCopy") || method.getName().equals("getClass"));
+                            && !
+                            (method.getName().startsWith("getCopy") || method.getName().equals("getClass"));
                 })
                 .collect(Collectors.toList());
     }
@@ -32,7 +40,6 @@ public class ReflectionUtil {
      * @param object
      * @param fieldNamesToExclude FIELD NAMES
      * @param <T>
-     *
      * @return METHODS
      */
     public static <T> List<Method> obtainAllGettersExceptFor(T object, List<String> fieldNamesToExclude) {
@@ -67,4 +74,5 @@ public class ReflectionUtil {
             throw new RuntimeException(e);
         }
     }
+
 }
