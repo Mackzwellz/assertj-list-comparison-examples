@@ -65,7 +65,18 @@ public class CustomAssertWrapper {
                 .isEqualTo(expected);
     }
 
+    private static void verifyEqualsInternalWithComparator(Object actual, Object expected) {
+//        RecursiveComparisonConfiguration compCfg = new RecursiveComparisonConfiguration();
+//        compCfg.setIntrospectionStrategy(new CustomIgnoringIntrospectionStrategy());
+
+        Assertions.assertThat(actual)
+                .usingRecursiveComparison(cfg)
+                .usingDefaultComparator()
+                .overridingErrorMessage(customErrorMessageSupplier(actual, expected, cfg))
+                .isEqualTo(expected);
+    }
+
     public static void verifyEquals(Object actual, Object expected) {
-        verifyEqualsInternalWithOverride(actual, expected);
+        verifyEqualsInternalWithComparator(actual, expected);
     }
 }

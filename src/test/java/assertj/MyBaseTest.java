@@ -5,6 +5,7 @@ import io.github.mackzwellz.assertj.dto.User;
 import org.junit.jupiter.api.BeforeAll;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,9 +23,9 @@ public class MyBaseTest {
         actualList.add(new User("Marple", "w@lm.es"));
 
         List<Address> actualAddresses = new ArrayList<>();
-        actualAddresses.add(new Address("UK", "London", "Baker st.", "221B"));
-        actualAddresses.add(new Address("UK", "London", "Baker st.", "221C"));
-        actualAddresses.add(new Address("UK", "London", "Baker st.", "221D"));
+        actualAddresses.add(new Address("UK", "London", "Baker st.", "221B", Arrays.asList(1, 2, 3)));
+        actualAddresses.add(new Address("UK", "London", "Baker st.", "221C", Arrays.asList(1, 3, 3)));
+        actualAddresses.add(new Address("UK", "London", "Baker st.", "221D", Arrays.asList(1, 2)));
 
         actualList.get(0).setAddresses(actualAddresses);
         actualList.get(1).setAddresses(null);
@@ -41,8 +42,8 @@ public class MyBaseTest {
         expectedList.add(new User("Marple", "w@lm.es"));
 
         List<Address> expectedAddresses = new ArrayList<>();
-        expectedAddresses.add(new Address("UK", "Manchester", "Baker st.", "221B"));
-        expectedAddresses.add(new Address("UK", "Manchester", "Baker st.", "221C"));
+        expectedAddresses.add(new Address("UK", "Manchester", "Baker st.", "221B", Arrays.asList(1, 2, 3)));
+        expectedAddresses.add(new Address("UK", "Manchester", "Baker st.", "221C", Arrays.asList(1, 2, 3)));
 
         expectedList.get(0).setAddresses(null);
         expectedList.get(1).setAddresses(expectedAddresses);
