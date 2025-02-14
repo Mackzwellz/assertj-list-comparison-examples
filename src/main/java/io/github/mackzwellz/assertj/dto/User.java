@@ -1,6 +1,6 @@
 package io.github.mackzwellz.assertj.dto;
 
-import io.github.mackzwellz.assertj.util.ComparatorUtil;
+import io.github.mackzwellz.assertj.util.ReflectionComparatorUtil;
 import lombok.*;
 
 import java.util.List;
@@ -38,7 +38,7 @@ public class User extends IdentifiableEntity {
             return false;
         }
         User that = (User) o;
-        return ComparatorUtil.equalsUsingGetters(this, that, obtainGettersForEquals());
+        return ReflectionComparatorUtil.equalsUsingGetters(this, that, obtainGettersForEquals());
     }
 
     @Override

@@ -14,23 +14,13 @@ package assertj.custom;
  */
 
 import org.assertj.core.api.AbstractAssert;
-import org.assertj.core.api.recursive.comparison.ComparisonDifference;
-import org.assertj.core.api.recursive.comparison.DefaultRecursiveComparisonIntrospectionStrategy;
-import org.assertj.core.api.recursive.comparison.RecursiveComparator;
-import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
-import org.assertj.core.api.recursive.comparison.RecursiveComparisonDifferenceCalculator;
-import org.assertj.core.api.recursive.comparison.RecursiveComparisonIntrospectionStrategy;
+import org.assertj.core.api.recursive.comparison.*;
 import org.assertj.core.internal.TypeComparators;
 import org.assertj.core.util.CheckReturnValue;
 import org.assertj.core.util.introspection.IntrospectionError;
 
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.OptionalDouble;
-import java.util.OptionalInt;
-import java.util.OptionalLong;
 import java.util.function.BiPredicate;
 
 import static org.assertj.core.error.ShouldBeEqualByComparingFieldByFieldRecursively.shouldBeEqualByComparingFieldByFieldRecursively;

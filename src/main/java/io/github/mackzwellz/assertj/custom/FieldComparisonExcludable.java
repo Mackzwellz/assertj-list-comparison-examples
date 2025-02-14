@@ -56,7 +56,8 @@ public interface FieldComparisonExcludable {
     default <T extends FieldComparisonExcludable> T obtainInstance(Type getterReturnType) {
         try {
             return ((Class<T>) getterReturnType).getDeclaredConstructor().newInstance();
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                 NoSuchMethodException e) {
             throw new RuntimeException(e);
         }
     }

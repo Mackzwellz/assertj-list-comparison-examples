@@ -6,9 +6,23 @@ import org.assertj.core.api.recursive.comparison.RecursiveComparisonDifferenceCa
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ComparisonDifferenceTest extends MyBaseTest {
+
+    /**
+     * this is a prototype of toString for assertion
+     *
+     * @param difference
+     * @return
+     */
+    private static String formatDifference(ComparisonDifference difference) {
+        String message = "Difference in " + String.join(".", difference.getDecomposedPath());
+        if (difference.getActual() != null) {
+            message += "\nexpected: " + difference.getExpected();
+            message += "\nactual: " + difference.getActual();
+        }
+        return message;
+    }
 
     // https://github.com/assertj/assertj/issues/3152
     // https://github.com/assertj/assertj/issues/2812
@@ -30,21 +44,6 @@ public class ComparisonDifferenceTest extends MyBaseTest {
             }
 
         }
-    }
-
-    /**
-     * this is a prototype of toString for assertion
-     *
-     * @param difference
-     * @return
-     */
-    private static String formatDifference(ComparisonDifference difference) {
-        String message = "Difference in " + String.join(".", difference.getDecomposedPath());
-        if (difference.getActual() != null) {
-            message += "\nexpected: " + difference.getExpected();
-            message += "\nactual: " + difference.getActual();
-        }
-        return message;
     }
 
 }
