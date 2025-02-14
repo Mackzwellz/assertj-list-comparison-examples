@@ -4,16 +4,15 @@ import io.github.mackzwellz.assertj.util.ReflectionComparatorUtil;
 import lombok.*;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-//@EqualsAndHashCode(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 @ToString
-public class User extends IdentifiableEntity {
+public class User extends IdentifiableEntity implements Comparable<User> {
 
     private String name;
     private String email;
@@ -29,24 +28,31 @@ public class User extends IdentifiableEntity {
         return Set.of("name");
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof User)) {
-            return false;
-        }
-        User that = (User) o;
-        return ReflectionComparatorUtil.equalsUsingGetters(this, that, obtainGettersForEquals());
-    }
+// previous solution for reference:
+//
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) {
+//            return true;
+//        }
+//        if (!(o instanceof User)) {
+//            return false;
+//        }
+//        User that = (User) o;
+//        return ComparatorUtil.equalsUsingGetters(this, that, obtainGettersForEquals());
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        int result = super.hashCode();
+//        //result = 31 * result + Objects.hashCode(getName());
+//        result = 31 * result + Objects.hashCode(getEmail());
+//        result = 31 * result + Objects.hashCode(getAddresses());
+//        return result;
+//    }
 
     @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        //result = 31 * result + Objects.hashCode(getName());
-        result = 31 * result + Objects.hashCode(getEmail());
-        result = 31 * result + Objects.hashCode(getAddresses());
-        return result;
+    public int compareTo(User o) {
+        return ReflectionComparatorUtil.compareToUsingGetters(this, o, this.obtainGettersForEquals());
     }
 }

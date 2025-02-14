@@ -3,9 +3,15 @@ package assertj;
 import assertj.custom.CustomAssertWrapper;
 import assertj.custom.CustomIgnoringIntrospectionStrategy;
 import assertj.custom.CustomRecursiveAssert;
+import io.github.mackzwellz.assertj.dto.Address;
+import io.github.mackzwellz.assertj.dto.User;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.recursive.comparison.RecursiveComparisonConfiguration;
 import org.junit.jupiter.api.Test;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class CustomAssertionsTest extends MyBaseTest {
 
@@ -46,6 +52,53 @@ public class CustomAssertionsTest extends MyBaseTest {
         //field/property '[3].addresses[1].city' differ:
         //- actual value  : "London"
         //- expected value: "Manchester"
+    }
+
+    @Test
+    public void thisIsItTest1() {
+        List<User> expectedList = new ArrayList<>();
+        List<User> actualList = new ArrayList<>();
+        actualList.add(new User("Sherlock", "h@lm.es"));
+
+        List<Address> actualAddresses = new ArrayList<>();
+        actualAddresses.add(new Address("UK", "London", "Baker st.", "221B", Arrays.asList(1, 2, 3)));
+        actualAddresses.add(new Address("UK", "London", "Baker st.", "221C", Arrays.asList(1, 3, 3)));
+        actualAddresses.add(new Address("UK", "London", "Baker st.", "221D", Arrays.asList(1, 2)));
+
+        actualList.get(0).setAddresses(actualAddresses);
+
+        expectedList.add(new User("Moriarty", "11111@lm.es"));
+
+        List<Address> expectedAddresses = new ArrayList<>();
+        expectedAddresses.add(new Address("UK", "Manchester", "Baker st.", "221B", Arrays.asList(1, 2, 3)));
+        expectedAddresses.add(new Address("UK", "Manchester", "Baker st.", "221C", Arrays.asList(1, 2, 3)));
+
+        expectedList.get(0).setAddresses(expectedAddresses);
+
+        CustomAssertWrapper.verifyEquals(actualList, expectedList);
+    }
+
+    @Test
+    public void thisIsItTest2() {
+        List<User> expectedList = new ArrayList<>();
+        List<User> actualList = new ArrayList<>();
+        actualList.add(new User("Erqule", "w@lm.es"));
+
+        List<Address> actualAddresses = new ArrayList<>();
+        actualAddresses.add(new Address("UK", "London", "Parking st.", "221B", Arrays.asList(1, 2, 3)));
+        actualAddresses.add(new Address("UK", "London", "Baker st.", "221D", Arrays.asList(1, 2, 1, 2)));
+
+        actualList.get(0).setAddresses(actualAddresses);
+
+        expectedList.add(new User("Marple", "w@lm.es"));
+
+        List<Address> expectedAddresses = new ArrayList<>();
+        expectedAddresses.add(new Address("UK", "London", "Baker st.", "221B", Arrays.asList(1, 2, 3)));
+        expectedAddresses.add(new Address("UK", "Edinburgh", "Baker st.", "221C", Arrays.asList(1, 2, 3)));
+
+        expectedList.get(0).setAddresses(expectedAddresses);
+
+        CustomAssertWrapper.verifyEquals(actualList, expectedList);
     }
 
     @Test

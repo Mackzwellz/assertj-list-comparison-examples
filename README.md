@@ -9,8 +9,8 @@ This repository explores implementations of the following requirement:
 > And these objects have these properties:
 > - fields may be non-primitive POJOs
 > - fields may be non-primitive lists of POJOs
-> - both top level and nested fields of each POJO may have a set of fields that I don't want to use for comparison (
-    ignored fields)
+> - both top level and nested fields of each POJO may have a set of fields that I don't want to use for comparison
+    (ignored fields)
 > - all POJOs may have a common ancestor (BaseDto) that may implement some helpful interfaces / instance methods
 >
 > When I compare two objects in assertion  
@@ -27,8 +27,7 @@ This repository explores implementations of the following requirement:
 Stretch goals:
 
 > - uses single source of truth for ignored fields for both `Object.equals` and assertion message
-    >
-- will possibly have to resort to reflection for this
+    (will possibly have to resort to reflection for this)
 > - have method to get and use index-like property (`id`,`uuid`) in assertion output to make mismatching object
     identification easier
 > - have option sort fields in assertion message in the same order as declared data object or alphabetically
@@ -63,15 +62,26 @@ e.g. [ReflectionAssertionsTest](src/test/java/assertj/ReflectionAssertionsTest.j
 This should work regardless of which assertions we use.
 
 But we will use AssertJ since it is almost perfect for our use case ~~and requires only minimal customization~~ and has
-many features that we need already implemented.
+many features that we need already implemented. At the moment, we still have to override the assertion message,
+but at least the object comparison could be implemented in ~~a nice and~~ an extensible way.
 
 ## Solution(s)
 
-[Check it out](src/test/java/assertj/CustomAssertionsTest.java).
-We still had to override the assertion message, but at least the object comparison could be implemented in a nice and
-extensible way.
-
 - [Relevant AssertJ Github forum discussion here](https://github.com/orgs/assertj/discussions/3352)
+
+Check it out:
+
+- [Test data / POJO setup](src/test/java/assertj/MyBaseTest.java)
+- [Test and assertion usage](src/test/java/assertj/CustomAssertionsTest.java)
+- [Assertion's "internals"](src/test/java/assertj/custom/CustomAssertWrapper.java)
+- Objects that we compare:
+    - [User](src/main/java/io/github/mackzwellz/assertj/dto/User.java)
+    - [Address](src/main/java/io/github/mackzwellz/assertj/dto/Address.java)
+
+Constraints/Limitations:
+
+- Each object must implement `FieldComparisonExcludable` to be eligible for comparison using this approach.
+- Each object must implement `Comparable` and do not have ancestors that implement `Comparable`.
 
 ## Lessons learned
 
@@ -83,3 +93,9 @@ extensible way.
 - Current (as of ~v3.26) existing AssertJ assertion APIs don't handle/scale for this approach well.
     - See [Discussion about the shortcomings of current approach](https://github.com/orgs/assertj/discussions/3418)
     - Then again, it is probably not the best approach in general.
+- It's possible to avoid replacing `equals()` and `hashCode()` by using `Comparable` interface and specifying custom
+  comparison logic.
+    - This is achievable without reflection, but any fields of `Collection` or `Map` type will need special handling.
+    - In the initial approach that we took, we replaced the contents of equals method, but there was still the need
+      to keep `equals()` and `hashCode()` parity. With implementation of `Comparable`, there is now a single place
+      in the object that we need to update, and `equals()` and `hashCode()` creation could be delegated to Lombok.
